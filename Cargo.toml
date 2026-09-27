@@ -1,0 +1,28 @@
+[package]
+name = "usb-android-tethering"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+description = "Android USB (RNDIS) tethering for macOS: userspace driver, native network service, VPN-friendly"
+readme = "README.md"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/frosty-universe/usb-android-tethering"
+homepage = "https://github.com/frosty-universe/usb-android-tethering"
+keywords = ["macos", "android", "tethering", "rndis", "usb"]
+categories = ["command-line-utilities", "network-programming"]
+# Only what is needed to build and understand the crate goes into a published package.
+include = ["src/**", "Cargo.toml", "Cargo.lock", "README.md", "CHANGELOG.md", "LICENSE-MIT", "LICENSE-APACHE"]
+
+[dependencies]
+anyhow = "1.0.104"
+clap = { version = "4.6.7", features = ["derive"] }
+ctrlc = { version = "3.5.2", features = ["termination"] }
+libc = "0.2.189"
+log = { version = "0.4.34", features = ["std"] }
+rusb = { version = "0.9.4", features = ["vendored"] }
+serde_json = "1.0.151"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true

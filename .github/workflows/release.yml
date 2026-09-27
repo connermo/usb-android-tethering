@@ -1,0 +1,79 @@
+name: Release
+
+# Builds a universal (Apple Silicon + Intel) binary for a version tag and publishes it,
+# with SHA256SUMS, as a GitHub release. install.sh downloads exactly these assets.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+  ASSET: usb-android-tethering-macos-universal.tar.gz
+
+jobs:
+  release:
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: dtolnay/rust-toolchain@6bed0761d98439e5a578e2877258200ad565ba87 # stable
+        with:
+          toolchain: stable
+          targets: aarch64-apple-darwin, x86_64-apple-darwin
+
+      - name: Check the tag matches Cargo.toml
+        run: |
+          version=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
+          test "v$version" = "$GITHUB_REF_NAME" || { echo "tag $GITHUB_REF_NAME != Cargo.toml v$version"; exit 1; }
+
+      - name: Test
+        run: cargo test --locked
+
+      - name: Build both architectures
+        run: |
+          cargo build --locked --release --target aarch64-apple-darwin
+          cargo build --locked --release --target x86_64-apple-darwin
+
+      - name: Create universal binary
+        run: |
+          mkdir -p dist
+          lipo -create -output dist/usb-android-tethering \
+            target/aarch64-apple-darwin/release/usb-android-tethering \
+            target/x86_64-apple-darwin/release/usb-android-tethering
+          codesign --force --sign - dist/usb-android-tethering   # ad-hoc signature for arm64
+          lipo -archs dist/usb-android-tethering
+          ./dist/usb-android-tethering --version
+
+      - name: Package and checksum
+        run: |
+          cp LICENSE-MIT LICENSE-APACHE README.md dist/
+          tar -czf "$ASSET" -C dist usb-android-tethering LICENSE-MIT LICENSE-APACHE README.md
+          shasum -a 256 "$ASSET" > SHA256SUMS
+          cat SHA256SUMS
+
+      - name: Release notes from CHANGELOG.md
+        run: |
+          version=${GITHUB_REF_NAME#v}
+          awk -v v="$version" '
+            $0 ~ "^## \\[" v "\\]" { on = 1; next }
+            on && /^## \[/ { exit }
+            on { print }' CHANGELOG.md > notes.md
+          cat >> notes.md <<'EOF'
+
+          ### Install
+
+          ```sh
+          curl -fsSL https://raw.githubusercontent.com/frosty-universe/usb-android-tethering/main/install.sh | sh
+          ```
+          EOF
+
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "$ASSET" SHA256SUMS \
+            --title "$GITHUB_REF_NAME" --notes-file notes.md --verify-tag

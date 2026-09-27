@@ -1,0 +1,45 @@
+name: Device report
+description: Tell us whether your phone works (success reports are just as useful!)
+labels: [device-report]
+body:
+  - type: dropdown
+    id: result
+    attributes:
+      label: Result
+      options:
+        - Works
+        - Works with issues
+        - Doesn't work
+    validations:
+      required: true
+  - type: input
+    id: phone
+    attributes:
+      label: Phone model and Android version
+      placeholder: Xiaomi 14, HyperOS 2 / Android 15
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version and Mac
+    validations:
+      required: true
+  - type: textarea
+    id: devices
+    attributes:
+      label: "`usb-android-tethering devices --json`"
+      render: json
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Connection log
+      description: The lines logged when the phone connects (with `-v`), including "link up:" and "online"
+      render: text
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes
+      description: Throughput, VPNs tested, anything unusual

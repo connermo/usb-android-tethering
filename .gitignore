@@ -1,0 +1,9 @@
+# Build output
+/target
+
+# Local tooling and personal files (never published)
+/CLAUDE.md
+/.remember/
+/removed-droidtether-backup/
+.DS_Store
+*.swp
