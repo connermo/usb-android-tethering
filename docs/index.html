@@ -8,7 +8,10 @@
 <meta name="keywords" content="android usb tethering mac, horndis alternative, horndis apple silicon, usb tethering macos, rndis macos, android tethering m1, android tethering macbook, usb tethering sequoia, usb tethering sonoma, cdc-ncm mac">
 <link rel="canonical" href="https://frosty-universe.github.io/usb-android-tethering/">
 <meta name="robots" content="index, follow">
-<meta name="theme-color" content="#0d1321">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#07090f" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f6f7fb" media="(prefers-color-scheme: light)">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%233ddc84'/%3E%3Cstop offset='1' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100' height='100' rx='24' fill='url(%23g)'/%3E%3Cpath d='M30 38h40v24H30z M44 62v10h12V62' fill='none' stroke='white' stroke-width='7' stroke-linejoin='round'/%3E%3C/svg%3E">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="usb-android-tethering">
@@ -81,151 +84,565 @@
 </script>
 
 <style>
+  /* ---------- Design tokens ---------- */
   :root {
-    --bg: #ffffff; --fg: #1b2330; --muted: #4a5568; --card: #f4f6fa; --border: #d9dee7;
-    --accent: #0f7a45; --accent-fg: #ffffff; --code-bg: #0d1321; --code-fg: #d7ffe6;
+    --bg: #07090f;
+    --bg-2: #0c1019;
+    --surface: rgba(255, 255, 255, 0.045);
+    --surface-2: rgba(255, 255, 255, 0.07);
+    --border: rgba(255, 255, 255, 0.09);
+    --border-strong: rgba(255, 255, 255, 0.16);
+    --text: #eef2f8;
+    --muted: #a3aec2;
+    --faint: #6f7b91;
+    --green: #3ddc84;
+    --violet: #8b5cf6;
+    --cyan: #22d3ee;
+    --accent-text: #3ddc84;
+    --on-accent: #04120a;
+    --term-bg: #05070c;
+    --grad: linear-gradient(120deg, #3ddc84 0%, #22d3ee 45%, #8b5cf6 100%);
+    --grad-text: var(--grad);
+    --shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.7);
+    --radius: 18px;
+    --ring: 0 0 0 3px rgba(61, 220, 132, 0.55);
   }
-  @media (prefers-color-scheme: dark) {
+  @media (prefers-color-scheme: light) {
     :root {
-      --bg: #0d1321; --fg: #e8edf5; --muted: #a8b3c4; --card: #151d2e; --border: #26324a;
-      --accent: #3ddc84; --accent-fg: #06210f; --code-bg: #070b14; --code-fg: #b8f7d2;
+      --bg: #f6f7fb;
+      --bg-2: #eef1f7;
+      --surface: rgba(255, 255, 255, 0.72);
+      --surface-2: rgba(255, 255, 255, 0.9);
+      --border: rgba(15, 23, 42, 0.09);
+      --border-strong: rgba(15, 23, 42, 0.16);
+      --text: #0b1220;
+      --muted: #46526a;
+      --faint: #667085;
+      --accent-text: #0a7a41;
+      --shadow: 0 30px 70px -35px rgba(15, 23, 42, 0.35);
+      --ring: 0 0 0 3px rgba(10, 122, 65, 0.45);
+      /* Darker stops keep large gradient text above 3:1 on the light background. */
+      --grad-text: linear-gradient(120deg, #07803f 0%, #0e7490 50%, #6d28d9 100%);
     }
   }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--fg);
-         font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
-  a { color: var(--accent); }
-  a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-  .wrap { max-width: 960px; margin: 0 auto; padding: 0 16px; }
-  header.hero { padding: 64px 0 40px; }
-  h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.15; margin: 0 0 12px; }
-  h2 { font-size: 1.6rem; margin: 48px 0 12px; }
-  h3 { font-size: 1.15rem; margin: 0 0 6px; }
-  .lead { font-size: 1.2rem; color: var(--muted); margin: 0 0 24px; }
-  .cmd { display: flex; align-items: stretch; gap: 8px; background: var(--code-bg); border-radius: 12px;
-         padding: 12px; overflow-x: auto; }
-  .cmd code { color: var(--code-fg); font: 15px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
-              white-space: nowrap; align-self: center; flex: 1; }
-  button.copy { flex: none; min-width: 72px; min-height: 44px; border: 0; border-radius: 8px; cursor: pointer;
-                background: var(--accent); color: var(--accent-fg); font-weight: 600; font-size: 15px; }
-  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
-  .btn { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 10px;
-         border: 1px solid var(--border); text-decoration: none; font-weight: 600; color: var(--fg); }
-  .btn.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
-  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
-  .card p { margin: 0; color: var(--muted); }
-  table { width: 100%; border-collapse: collapse; font-size: 15px; }
-  th, td { border-bottom: 1px solid var(--border); padding: 10px 8px; text-align: left; vertical-align: top; }
-  th { font-weight: 600; }
-  .scroll { overflow-x: auto; }
-  ol.steps { padding-left: 1.2em; } ol.steps li { margin: 0 0 10px; }
-  details { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin: 10px 0; }
-  summary { cursor: pointer; font-weight: 600; min-height: 28px; }
-  footer { margin: 64px 0 32px; color: var(--muted); font-size: 14px; }
-  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+
+  /* ---------- Base ---------- */
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased; overflow-x: hidden;
+  }
+  a { color: inherit; }
+  code, .mono { font-family: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace; }
+  :focus-visible { outline: none; box-shadow: var(--ring); border-radius: 10px; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); border: 0; }
+  .wrap { width: min(1120px, 100% - 32px); margin-inline: auto; }
+
+  /* ---------- Background: gradient mesh + grid ---------- */
+  .bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
+  .bg::before {
+    content: ""; position: absolute; inset: -20%;
+    background:
+      radial-gradient(40% 35% at 18% 12%, rgba(61, 220, 132, 0.20), transparent 70%),
+      radial-gradient(35% 30% at 85% 8%, rgba(139, 92, 246, 0.22), transparent 70%),
+      radial-gradient(40% 35% at 70% 75%, rgba(34, 211, 238, 0.12), transparent 70%);
+    filter: blur(10px);
+  }
+  .bg::after {
+    content: ""; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 80% 55% at 50% 0%, #000 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse 80% 55% at 50% 0%, #000 30%, transparent 75%);
+    opacity: 0.55;
+  }
+
+  /* ---------- Nav ---------- */
+  .nav {
+    position: sticky; top: 0; z-index: 10;
+    backdrop-filter: saturate(160%) blur(16px); -webkit-backdrop-filter: saturate(160%) blur(16px);
+    background: color-mix(in srgb, var(--bg) 70%, transparent);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 16px; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; text-decoration: none; letter-spacing: -0.01em; }
+  .logo { width: 30px; height: 30px; border-radius: 9px; background: var(--grad); display: grid; place-items: center; box-shadow: 0 6px 20px -6px rgba(61, 220, 132, 0.6); }
+  .logo svg { width: 18px; height: 18px; }
+  .nav-links { display: flex; align-items: center; gap: 6px; }
+  .nav-links a { text-decoration: none; color: var(--muted); font-size: 14.5px; padding: 8px 12px; border-radius: 10px; min-height: 40px; display: inline-flex; align-items: center; }
+  .nav-links a:hover { color: var(--text); background: var(--surface); }
+  .nav-links .gh { color: var(--text); border: 1px solid var(--border-strong); gap: 8px; }
+  @media (max-width: 720px) { .nav-links a.hide-sm { display: none; } }
+
+  /* ---------- Hero ---------- */
+  .hero { padding: clamp(56px, 10vw, 110px) 0 40px; text-align: center; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 10px; padding: 6px 14px 6px 6px; border-radius: 999px;
+    border: 1px solid var(--border-strong); background: var(--surface); font-size: 13.5px; color: var(--muted);
+    text-decoration: none;
+  }
+  .pill b { background: var(--grad); color: var(--on-accent); border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 700; }
+  h1 {
+    font-size: clamp(2.5rem, 6.6vw, 5rem); line-height: 1.02; letter-spacing: -0.045em; font-weight: 800;
+    margin: 22px auto 18px; max-width: 17ch; text-wrap: balance;
+  }
+  .grad-text { background: var(--grad-text); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .lead { font-size: clamp(1.05rem, 1.9vw, 1.28rem); color: var(--muted); max-width: 680px; margin: 0 auto 34px; }
+  .lead strong { color: var(--text); font-weight: 600; }
+
+  /* Install command */
+  .install {
+    position: relative; max-width: 760px; margin: 0 auto; padding: 1px; border-radius: 16px;
+    background: linear-gradient(120deg, rgba(61, 220, 132, 0.7), rgba(34, 211, 238, 0.45), rgba(139, 92, 246, 0.7));
+    box-shadow: 0 20px 60px -25px rgba(61, 220, 132, 0.45);
+  }
+  .install-inner {
+    display: flex; align-items: center; gap: 12px; background: var(--term-bg); border-radius: 15px; padding: 10px 10px 10px 18px;
+  }
+  .install code {
+    flex: 1; color: #c9fbe0; font-size: 14.5px; white-space: nowrap; overflow-x: auto; text-align: left; scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(90deg, #000 88%, transparent); mask-image: linear-gradient(90deg, #000 88%, transparent);
+  }
+  .install code::-webkit-scrollbar { display: none; }
+  .install .prompt { color: var(--green); user-select: none; margin-right: 8px; }
+  .copy {
+    flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px; border: 0; border-radius: 11px;
+    font: 600 14px/1 inherit; font-family: inherit; cursor: pointer; color: var(--on-accent); background: var(--grad);
+    transition: transform .15s ease, filter .15s ease;
+  }
+  .copy:hover { filter: brightness(1.08); }
+  .copy:active { transform: scale(0.97); }
+  .copy svg { width: 16px; height: 16px; }
+  .install-note { margin: 14px 0 0; color: var(--faint); font-size: 13.5px; }
+
+  .cta-row { display: flex; justify-content: center; flex-wrap: wrap; gap: 12px; margin-top: 30px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 9px; min-height: 48px; padding: 0 22px; border-radius: 13px;
+    font-weight: 600; font-size: 15px; text-decoration: none; border: 1px solid var(--border-strong);
+    background: var(--surface); color: var(--text); transition: transform .15s ease, background .15s ease, border-color .15s ease;
+  }
+  .btn:hover { transform: translateY(-1px); background: var(--surface-2); border-color: var(--faint); }
+  .btn.primary { background: var(--text); color: var(--bg); border-color: transparent; }
+  .btn svg { width: 18px; height: 18px; }
+
+  .trust { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px 26px; margin-top: 38px; color: var(--muted); font-size: 14px; list-style: none; padding: 0; }
+  .trust li { display: inline-flex; align-items: center; gap: 8px; }
+  .trust svg { width: 17px; height: 17px; color: var(--accent-text); }
+
+  /* ---------- Terminal ---------- */
+  .terminal {
+    max-width: 880px; margin: 64px auto 0; border-radius: 16px; overflow: hidden; text-align: left;
+    background: var(--term-bg); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: var(--shadow), 0 0 0 1px rgba(0,0,0,.2);
+  }
+  .term-bar { display: flex; align-items: center; gap: 8px; padding: 12px 16px; background: rgba(255, 255, 255, 0.04); border-bottom: 1px solid rgba(255, 255, 255, 0.07); }
+  .dot { width: 12px; height: 12px; border-radius: 50%; }
+  .dot.r { background: #ff5f57; } .dot.y { background: #febc2e; } .dot.g { background: #28c840; }
+  .term-title { margin-left: auto; margin-right: auto; color: #8b95a7; font-size: 12.5px; transform: translateX(-26px); }
+  .term-body { margin: 0; padding: 20px 22px 24px; color: #d6dde8; font-size: 13.5px; line-height: 1.75; overflow-x: auto; }
+  @media (max-width: 560px) { .term-body { font-size: 11.5px; padding: 16px; } .term-title { display: none; } }
+  .t-p { color: #3ddc84; } .t-c { color: #e8eef7; } .t-m { color: #7d889c; } .t-ok { color: #3ddc84; } .t-k { color: #9aa7ff; } .t-v { color: #7ee7f5; }
+  .cursor { display: inline-block; width: 8px; height: 1.05em; vertical-align: -2px; background: #3ddc84; margin-left: 2px; }
+  @media (prefers-reduced-motion: no-preference) { .cursor { animation: blink 1.1s steps(1) infinite; } }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* ---------- Sections ---------- */
+  section { padding: clamp(64px, 9vw, 110px) 0 0; }
+  .eyebrow { display: inline-block; font-size: 13px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--accent-text); margin-bottom: 12px; }
+  h2 { font-size: clamp(1.9rem, 4vw, 2.9rem); line-height: 1.1; letter-spacing: -0.035em; margin: 0 0 14px; font-weight: 800; text-wrap: balance; }
+  #compare-h .nowrap { white-space: nowrap; }
+  .section-lead { color: var(--muted); font-size: 1.1rem; max-width: 640px; margin: 0 0 40px; }
+  .center { text-align: center; } .center .section-lead { margin-inline: auto; }
+
+  .glass {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Problem → solution */
+  .split { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  @media (max-width: 820px) { .split { grid-template-columns: 1fr; } }
+  .split .glass { padding: 28px; }
+  .split h3 { margin: 0 0 10px; font-size: 1.2rem; letter-spacing: -0.01em; }
+  .split p { margin: 0; color: var(--muted); }
+  .tag { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; margin-bottom: 14px; }
+  .tag.bad { background: rgba(255, 95, 87, 0.14); color: #ff8a84; }
+  .tag.good { background: rgba(61, 220, 132, 0.14); color: var(--accent-text); }
+  @media (prefers-color-scheme: light) { .tag.bad { color: #b42318; } }
+
+  /* How it works flow */
+  .flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0; align-items: center; margin-top: 8px; }
+  .node { text-align: center; padding: 22px 12px; position: relative; }
+  .node .ic { width: 58px; height: 58px; margin: 0 auto 12px; border-radius: 16px; display: grid; place-items: center; background: var(--surface-2); border: 1px solid var(--border-strong); }
+  .node .ic svg { width: 28px; height: 28px; color: var(--text); }
+  .node.hl .ic { background: var(--grad); border-color: transparent; box-shadow: 0 12px 30px -10px rgba(61, 220, 132, 0.6); }
+  .node.hl .ic svg { color: var(--on-accent); }
+  .node b { display: block; font-size: 15px; }
+  .node span { display: block; color: var(--faint); font-size: 13px; margin-top: 2px; }
+  .link { height: 2px; background: linear-gradient(90deg, transparent, var(--green), transparent); opacity: .7; position: relative; }
+  .flow-row { display: contents; }
+  @media (max-width: 820px) {
+    .flow { grid-template-columns: 1fr; }
+    .link { width: 2px; height: 26px; margin: 0 auto; background: linear-gradient(180deg, transparent, var(--green), transparent); }
+  }
+
+  /* Bento features */
+  .bento { display: grid; grid-template-columns: repeat(6, 1fr); gap: 16px; }
+  .feat { padding: 26px; position: relative; overflow: hidden; transition: transform .2s ease, border-color .2s ease; }
+  .feat:hover { transform: translateY(-3px); border-color: var(--border-strong); }
+  .feat .ic { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; margin-bottom: 16px; background: var(--surface-2); border: 1px solid var(--border); }
+  .feat .ic svg { width: 22px; height: 22px; color: var(--accent-text); }
+  .feat h3 { margin: 0 0 8px; font-size: 1.12rem; letter-spacing: -0.01em; }
+  .feat p { margin: 0; color: var(--muted); font-size: 15px; }
+  .span-3 { grid-column: span 3; } .span-2 { grid-column: span 2; } .span-4 { grid-column: span 4; }
+  .feat.big { background: linear-gradient(160deg, rgba(61, 220, 132, 0.12), rgba(139, 92, 246, 0.08) 60%, transparent), var(--surface); }
+  .kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; margin-top: 16px; font-size: 13.5px; }
+  .kv dt { color: var(--faint); } .kv dd { margin: 0; font-family: ui-monospace, "SF Mono", Menlo, monospace; color: var(--text); }
+  @media (max-width: 900px) { .span-3, .span-2, .span-4 { grid-column: span 6; } }
+
+  /* Steps */
+  .steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; counter-reset: step; list-style: none; padding: 0; margin: 0; }
+  @media (max-width: 900px) { .steps { grid-template-columns: 1fr 1fr; } }
+  @media (max-width: 560px) { .steps { grid-template-columns: 1fr; } }
+  .step { padding: 24px; }
+  .step::before {
+    counter-increment: step; content: counter(step);
+    display: grid; place-items: center; width: 36px; height: 36px; border-radius: 11px; margin-bottom: 16px;
+    font-weight: 800; color: var(--on-accent); background: var(--grad);
+  }
+  .step h3 { margin: 0 0 6px; font-size: 1.05rem; }
+  .step p { margin: 0; color: var(--muted); font-size: 14.5px; }
+  .step code { font-size: 13px; background: var(--surface-2); padding: 1px 6px; border-radius: 6px; }
+
+  /* Compare */
+  .table-wrap { overflow-x: auto; border-radius: var(--radius); }
+  table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 15px; min-width: 620px; }
+  th, td { padding: 16px 18px; text-align: center; border-bottom: 1px solid var(--border); }
+  thead th { font-size: 14px; color: var(--muted); font-weight: 600; }
+  tbody th { text-align: left; font-weight: 500; color: var(--text); }
+  tr:last-child th, tr:last-child td { border-bottom: 0; }
+  .col-us { background: linear-gradient(180deg, rgba(61, 220, 132, 0.10), rgba(61, 220, 132, 0.04)); }
+  thead .col-us { color: var(--accent-text); border-top-left-radius: 14px; border-top-right-radius: 14px; }
+  .yes, .no, .meh { display: inline-grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; font-weight: 800; font-size: 14px; }
+  .yes { background: rgba(61, 220, 132, 0.16); color: var(--accent-text); }
+  .no { background: rgba(255, 95, 87, 0.14); color: #ff8a84; }
+  .meh { background: rgba(254, 188, 46, 0.16); color: #d99a0f; }
+  @media (prefers-color-scheme: light) { .no { color: #b42318; } .meh { color: #9a6700; } }
+  .note { color: var(--faint); font-size: 13px; display: block; margin-top: 4px; }
+
+  /* FAQ */
+  .faq { max-width: 820px; margin: 0 auto; display: grid; gap: 12px; }
+  details { padding: 4px 22px; }
+  summary {
+    list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+    font-weight: 600; font-size: 1.04rem; padding: 16px 0; min-height: 44px;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after {
+    content: ""; flex: none; width: 10px; height: 10px; border-right: 2px solid var(--muted); border-bottom: 2px solid var(--muted);
+    transform: rotate(45deg) translateY(-3px); transition: transform .2s ease;
+  }
+  details[open] summary::after { transform: rotate(-135deg) translateY(-2px); }
+  details p { margin: 0 0 18px; color: var(--muted); }
+
+  /* Final CTA */
+  .final { margin-top: clamp(64px, 9vw, 110px); padding: clamp(40px, 6vw, 64px); text-align: center; position: relative; overflow: hidden; }
+  .final::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
+    background: radial-gradient(60% 80% at 50% 0%, rgba(61, 220, 132, 0.18), transparent 70%), radial-gradient(50% 70% at 90% 100%, rgba(139, 92, 246, 0.18), transparent 70%);
+  }
+  .final h2 { margin-bottom: 10px; }
+  .final p { color: var(--muted); margin: 0 auto 26px; max-width: 560px; }
+
+  footer { margin-top: 72px; padding: 32px 0 44px; border-top: 1px solid var(--border); color: var(--faint); font-size: 14px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 14px 28px; justify-content: space-between; align-items: center; }
+  footer nav { display: flex; flex-wrap: wrap; gap: 6px 18px; }
+  footer a { text-decoration: none; color: var(--muted); min-height: 32px; display: inline-flex; align-items: center; }
+  footer a:hover { color: var(--text); }
+  footer small { display: block; max-width: 520px; }
+
+  /* Reveal on scroll (only when JS runs and motion is allowed) */
+  @media (prefers-reduced-motion: no-preference) {
+    .js .reveal { opacity: 0; transform: translateY(18px); transition: opacity .7s ease, transform .7s ease; }
+    .js .reveal.in { opacity: 1; transform: none; }
+    .btn, .feat, .copy { will-change: transform; }
+  }
 </style>
+<script>document.documentElement.classList.add("js");</script>
 </head>
 <body>
-<header class="hero wrap">
-  <h1>Android USB tethering for Mac — on Apple Silicon, with your VPN</h1>
-  <p class="lead">
-    <strong>usb-android-tethering</strong> makes your Android phone's USB tethering work on macOS
-    (Sonoma, Sequoia, Tahoe; M1–M4 and Intel). It's a free, open-source <strong>HoRNDIS alternative</strong>:
-    the phone appears as a <strong>real Ethernet adapter</strong>, so VPN apps work over it. No kernel extension,
-    no security changes.
-  </p>
-  <div class="cmd" role="group" aria-label="Install command">
-    <code id="install-cmd">curl -fsSL https://raw.githubusercontent.com/frosty-universe/usb-android-tethering/main/install.sh | sh</code>
-    <button class="copy" type="button" data-copy="install-cmd" aria-label="Copy install command">Copy</button>
-  </div>
-  <div class="cta">
-    <a class="btn primary" href="https://github.com/frosty-universe/usb-android-tethering">⭐ Star on GitHub</a>
-    <a class="btn" href="https://github.com/frosty-universe/usb-android-tethering/releases/latest">Download release</a>
-    <a class="btn" href="#how-to">Step-by-step guide</a>
+<div class="bg" aria-hidden="true"></div>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="usb-android-tethering home">
+      <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#04120a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="9" rx="2"/><path d="M9 12v5h6v-5M12 17v4"/></svg></span>
+      usb-android-tethering
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a class="hide-sm" href="#how">How it works</a>
+      <a class="hide-sm" href="#features">Features</a>
+      <a class="hide-sm" href="#install">Install</a>
+      <a class="hide-sm" href="#faq">FAQ</a>
+      <a class="gh" href="https://github.com/frosty-universe/usb-android-tethering">
+        <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        GitHub
+      </a>
+    </nav>
   </div>
 </header>
 
-<main class="wrap">
-  <section aria-labelledby="why">
-    <h2 id="why">Why Android USB tethering doesn't work on a Mac</h2>
-    <p>Most Android phones tether over <strong>RNDIS</strong>, a Microsoft protocol macOS has never supported.
-      The old fix, the <strong>HoRNDIS</strong> kernel extension, no longer loads on current macOS, and on Apple Silicon
-      any kext requires lowering the Mac's boot security. Tools that use a tunnel (<code>utun</code>) interface instead
-      are often ignored by VPN apps. usb-android-tethering solves both problems.</p>
-  </section>
+<main id="top">
+  <!-- ===================== Hero ===================== -->
+  <div class="hero wrap">
+    <a class="pill" href="https://github.com/frosty-universe/usb-android-tethering/releases/latest"><b>v0.1.0</b> Free &amp; open source · Apple Silicon + Intel</a>
+    <h1>Android USB tethering, <span class="grad-text">native on your Mac.</span></h1>
+    <p class="lead">
+      Plug in your phone, turn on USB tethering, and you're online. <strong>usb-android-tethering</strong> is a free
+      <strong>HoRNDIS alternative</strong> for macOS Sonoma, Sequoia and Tahoe on M1–M4 and Intel Macs. It turns your
+      phone into a <strong>real Ethernet adapter</strong>, so your VPN keeps working. No kernel extension.
+    </p>
 
-  <section aria-labelledby="features">
-    <h2 id="features">Features</h2>
-    <div class="grid">
-      <div class="card"><h3>🔌 A real Ethernet adapter</h3><p>macOS's Network framework reports it as wired Ethernet, and it's listed in System Settings → Network as "USB Android Tethering".</p></div>
-      <div class="card"><h3>🛡️ Works with VPNs</h3><p>VPN apps run over it like any wired network. Only IPv4 is bridged, so IPv6 can't leak around the VPN.</p></div>
-      <div class="card"><h3>🤖 Every Android phone</h3><p>RNDIS (Samsung, Xiaomi, OnePlus, Motorola…) plus CDC-NCM/ECM (Pixel 6+) when macOS doesn't pick the phone up itself.</p></div>
-      <div class="card"><h3>🍏 Apple Silicon &amp; Intel</h3><p>One universal binary for M1, M2, M3, M4 and Intel Macs. No kernel extension, no SIP or boot-security changes.</p></div>
-      <div class="card"><h3>🔁 Plug and play</h3><p>Starts at boot, connects when you plug in, reconnects after sleep or unplugging, and recovers by itself from crashes.</p></div>
-      <div class="card"><h3>🪶 Lightweight &amp; open source</h3><p>Written in Rust, about 7 MB of memory, 0 % CPU when idle. MIT or Apache-2.0 licensed.</p></div>
+    <div class="install" id="install-box">
+      <div class="install-inner">
+        <code id="install-cmd"><span class="prompt" aria-hidden="true">$</span>curl -fsSL https://raw.githubusercontent.com/frosty-universe/usb-android-tethering/main/install.sh | sh</code>
+        <button class="copy" type="button" data-copy="install-cmd" aria-label="Copy install command">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          <span>Copy</span>
+        </button>
+      </div>
+    </div>
+    <p class="install-note">Paste into Terminal. It verifies the SHA-256 checksum, then asks for your password once.</p>
+
+    <div class="cta-row">
+      <a class="btn primary" href="https://github.com/frosty-universe/usb-android-tethering">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg>
+        Star on GitHub
+      </a>
+      <a class="btn" href="https://github.com/frosty-universe/usb-android-tethering/releases/latest">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 21h16"/></svg>
+        Download release
+      </a>
+    </div>
+
+    <ul class="trust" aria-label="Highlights">
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Apple Silicon &amp; Intel</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>Works with VPNs</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>No kernel extension</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>MIT / Apache-2.0</li>
+    </ul>
+
+    <figure class="terminal reveal" aria-label="Example terminal session">
+      <div class="term-bar" aria-hidden="true"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span class="term-title">zsh — usb-android-tethering</span></div>
+<pre class="term-body mono"><span class="t-p">~ ❯</span> <span class="t-c">curl -fsSL …/install.sh | sh</span>
+<span class="t-ok">==&gt;</span> Downloading usb-android-tethering (latest)…
+<span class="t-ok">==&gt;</span> Verifying checksum…
+<span class="t-ok">==&gt;</span> Installing the background service…
+  <span class="t-ok">✔</span> Installed. Plug in your phone and turn on USB tethering.
+
+<span class="t-p">~ ❯</span> <span class="t-c">usb-android-tethering status</span>
+<span class="t-k">Background service:</span> installed, running
+<span class="t-k">Tether:            </span> <span class="t-ok">online</span> for 3s
+<span class="t-k">Interface:         </span> <span class="t-v">feth7070</span> <span class="t-m">(primary network)</span>
+<span class="t-k">Address:           </span> 192.168.211.47 via 192.168.211.44
+<span class="t-k">Phone:             </span> 04e8:6863 "SAMSUNG_Android" <span class="t-v">RNDIS</span>
+<span class="t-p">~ ❯</span> <span class="cursor" aria-hidden="true"></span></pre>
+    </figure>
+  </div>
+
+  <!-- ===================== Why ===================== -->
+  <section id="why" class="wrap reveal" aria-labelledby="why-h">
+    <span class="eyebrow">The problem</span>
+    <h2 id="why-h">Why Android USB tethering doesn't work on a Mac</h2>
+    <p class="section-lead">Most Android phones tether over RNDIS, a Microsoft protocol macOS has never supported. The workarounds each break something.</p>
+    <div class="split">
+      <div class="glass">
+        <span class="tag bad">Before</span>
+        <h3>Kernel extensions and tunnels</h3>
+        <p>The <strong>HoRNDIS</strong> kernel extension no longer loads on current macOS, and on Apple Silicon any kext means lowering your Mac's boot security. Tools that use a tunnel (<code>utun</code>) interface work, but VPN apps often ignore tunnel interfaces.</p>
+      </div>
+      <div class="glass">
+        <span class="tag good">With usb-android-tethering</span>
+        <h3>A real Ethernet adapter</h3>
+        <p>A userspace driver presents your phone to macOS as genuine <strong>wired Ethernet</strong>, listed in System Settings like a USB dongle. macOS handles DHCP, routes and DNS, and your VPN runs over it as usual.</p>
+      </div>
     </div>
   </section>
 
-  <section aria-labelledby="how-to">
-    <h2 id="how-to">How to use Android USB tethering on a Mac</h2>
+  <!-- ===================== How it works ===================== -->
+  <section id="how" class="wrap reveal" aria-labelledby="how-h">
+    <div class="center">
+      <span class="eyebrow">How it works</span>
+      <h2 id="how-h">From your phone to your VPN, no kernel code</h2>
+      <p class="section-lead">The driver runs in userspace and bridges the phone's USB network function to a virtual Ethernet interface that macOS treats like hardware.</p>
+    </div>
+    <div class="flow glass" role="list">
+      <div class="node" role="listitem"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div><b>Android phone</b><span>USB tethering on</span></div>
+      <div class="link" aria-hidden="true"></div>
+      <div class="node hl" role="listitem"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h16M4 16h16M8 4v16M16 4v16"/></svg></div><b>Userspace driver</b><span>RNDIS · NCM · ECM</span></div>
+      <div class="link" aria-hidden="true"></div>
+      <div class="node" role="listitem"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="10" rx="2"/><path d="M7 17v3M12 17v3M17 17v3"/></svg></div><b>Ethernet adapter</b><span>macOS + your VPN</span></div>
+    </div>
+  </section>
+
+  <!-- ===================== Features ===================== -->
+  <section id="features" class="wrap reveal" aria-labelledby="features-h">
+    <span class="eyebrow">Features</span>
+    <h2 id="features-h">Everything you'd expect from a built-in driver</h2>
+    <p class="section-lead">Built in Rust for reliability, and designed to disappear into the background.</p>
+    <div class="bento">
+      <article class="glass feat big span-4">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="18" height="10" rx="2"/><path d="M7 17v3M12 17v3M17 17v3"/></svg></div>
+        <h3>Just like a physical adapter</h3>
+        <p>Apps and VPN clients can't tell it apart from a USB Ethernet dongle.</p>
+        <dl class="kv">
+          <dt>Network framework</dt><dd>wiredEthernet · primary</dd>
+          <dt>System Settings</dt><dd>"USB Android Tethering" · DHCP</dd>
+          <dt>Kernel</dt><dd>Ethernet interface with MAC &amp; ARP</dd>
+        </dl>
+      </article>
+      <article class="glass feat span-2">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 4v5c0 4.5-3.2 8.3-8 9-4.8-.7-8-4.5-8-9V7z"/></svg></div>
+        <h3>VPN-compatible</h3>
+        <p>Your VPN runs over it like any wired network. IPv4-only bridging means no IPv6 leaks.</p>
+      </article>
+      <article class="glass feat span-2">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></div>
+        <h3>Every Android phone</h3>
+        <p>RNDIS (Samsung, Xiaomi, OnePlus, Motorola…) plus CDC-NCM/ECM (Pixel 6+) when macOS doesn't claim the phone.</p>
+      </article>
+      <article class="glass feat span-2">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"/></svg></div>
+        <h3>Plug and play</h3>
+        <p>Starts at boot, connects on plug-in, reconnects after sleep, and recovers from crashes by itself.</p>
+      </article>
+      <article class="glass feat span-2">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></div>
+        <h3>Featherweight</h3>
+        <p>Async USB I/O, kernel packet filter, about 7 MB of memory, and 0 % CPU when idle.</p>
+      </article>
+      <article class="glass feat span-3">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div>
+        <h3>Safe by design</h3>
+        <p>No kernel code and no security changes. The installer checks checksums, and uninstall removes every trace.</p>
+      </article>
+      <article class="glass feat span-3">
+        <div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17l6-6-6-6M12 19h8"/></svg></div>
+        <h3>Scriptable CLI</h3>
+        <p><code>status</code> and <code>devices</code> with <code>--json</code>, rotated logs, stable exit codes, and a one-command installer.</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- ===================== Steps ===================== -->
+  <section id="install" class="wrap reveal" aria-labelledby="install-h">
+    <span class="eyebrow">Get started</span>
+    <h2 id="install-h">How to use Android USB tethering on a Mac</h2>
+    <p class="section-lead">Four steps, about a minute. Samsung: Settings → Connections → Mobile Hotspot and Tethering. Pixel: Settings → Network &amp; internet → Hotspot &amp; tethering.</p>
     <ol class="steps">
-      <li><strong>Install</strong> by pasting the command above into Terminal. It downloads the universal binary, verifies its checksum, and asks for your password once.</li>
-      <li><strong>Connect the phone</strong> with a USB data cable. Charge-only cables don't carry data.</li>
-      <li><strong>Turn on USB tethering</strong> on the phone. Samsung: Settings → Connections → Mobile Hotspot and Tethering → USB tethering. Pixel: Settings → Network &amp; internet → Hotspot &amp; tethering → USB tethering. Other phones: search Settings for "USB tethering".</li>
-      <li><strong>You're online.</strong> Check with <code>usb-android-tethering status</code>. Unplug and your Mac falls back to Wi-Fi.</li>
+      <li class="glass step"><h3>Install</h3><p>Paste the command above into Terminal and enter your password once.</p></li>
+      <li class="glass step"><h3>Connect</h3><p>Plug the phone in with a USB <em>data</em> cable. Charge-only cables don't work.</p></li>
+      <li class="glass step"><h3>Turn on USB tethering</h3><p>On the phone, search Settings for "USB tethering" and switch it on.</p></li>
+      <li class="glass step"><h3>You're online</h3><p>Check with <code>usb-android-tethering status</code>. Unplug and you're back on Wi-Fi.</p></li>
     </ol>
   </section>
 
-  <section aria-labelledby="compare">
-    <h2 id="compare">HoRNDIS vs. tunnel-based tools vs. usb-android-tethering</h2>
-    <div class="scroll">
+  <!-- ===================== Compare ===================== -->
+  <section id="compare" class="wrap reveal" aria-labelledby="compare-h">
+    <div class="center">
+      <span class="eyebrow">Compare</span>
+      <h2 id="compare-h">HoRNDIS vs. tunnel-based tools vs. <span class="nowrap">usb-android-tethering</span></h2>
+    </div>
+    <div class="glass table-wrap">
       <table>
-        <thead><tr><th scope="col"></th><th scope="col">HoRNDIS (kext)</th><th scope="col">Tunnel-based (<code>utun</code>)</th><th scope="col">usb-android-tethering</th></tr></thead>
+        <thead>
+          <tr><th scope="col"><span class="sr-only">Capability</span></th><th scope="col">HoRNDIS (kext)</th><th scope="col">Tunnel-based (<code>utun</code>)</th><th scope="col" class="col-us">usb-android-tethering</th></tr>
+        </thead>
         <tbody>
-          <tr><th scope="row">Current macOS &amp; Apple Silicon</th><td>No</td><td>Yes</td><td><strong>Yes</strong></td></tr>
-          <tr><th scope="row">No boot-security downgrade</th><td>No</td><td>Yes</td><td><strong>Yes</strong></td></tr>
-          <tr><th scope="row">Seen as wired Ethernet</th><td>Yes</td><td>No</td><td><strong>Yes</strong></td></tr>
-          <tr><th scope="row">VPN apps can run over it</th><td>Yes</td><td>Often ignored</td><td><strong>Yes</strong></td></tr>
-          <tr><th scope="row">RNDIS and CDC-NCM/ECM phones</th><td>RNDIS only</td><td>Varies</td><td><strong>Yes</strong></td></tr>
+          <tr><th scope="row">Current macOS &amp; Apple Silicon</th><td><span class="no" role="img" aria-label="No">✕</span></td><td><span class="yes" role="img" aria-label="Yes">✓</span></td><td class="col-us"><span class="yes" role="img" aria-label="Yes">✓</span></td></tr>
+          <tr><th scope="row">No boot-security downgrade</th><td><span class="no" role="img" aria-label="No">✕</span></td><td><span class="yes" role="img" aria-label="Yes">✓</span></td><td class="col-us"><span class="yes" role="img" aria-label="Yes">✓</span></td></tr>
+          <tr><th scope="row">Seen as wired Ethernet</th><td><span class="yes" role="img" aria-label="Yes">✓</span></td><td><span class="no" role="img" aria-label="No">✕</span></td><td class="col-us"><span class="yes" role="img" aria-label="Yes">✓</span></td></tr>
+          <tr><th scope="row">VPN apps can run over it</th><td><span class="yes" role="img" aria-label="Yes">✓</span></td><td><span class="meh" role="img" aria-label="Often ignored">!</span><span class="note">often ignored</span></td><td class="col-us"><span class="yes" role="img" aria-label="Yes">✓</span></td></tr>
+          <tr><th scope="row">RNDIS and CDC-NCM/ECM phones</th><td><span class="meh" role="img" aria-label="RNDIS only">!</span><span class="note">RNDIS only</span></td><td><span class="meh" role="img" aria-label="Varies">?</span><span class="note">varies</span></td><td class="col-us"><span class="yes" role="img" aria-label="Yes">✓</span></td></tr>
         </tbody>
       </table>
     </div>
   </section>
 
-  <section aria-labelledby="faq">
-    <h2 id="faq">Frequently asked questions</h2>
-    <details><summary>How do I use Android USB tethering on a Mac?</summary>
-      <p>Install usb-android-tethering with one command, connect the phone with a USB data cable, and turn on USB tethering in the phone's settings. The Mac connects within a few seconds and shows the phone as the network "USB Android Tethering".</p></details>
-    <details><summary>Does HoRNDIS work on Apple Silicon Macs?</summary>
-      <p>No. HoRNDIS is a kernel extension; it no longer loads on current macOS, and on Apple Silicon any third-party kernel extension requires lowering the Mac's boot security. usb-android-tethering is a userspace alternative that needs no kernel extension.</p></details>
-    <details><summary>Why doesn't my Mac recognize my Android phone's USB tethering?</summary>
-      <p>Most Android phones tether over RNDIS, a Microsoft protocol that macOS has never supported. usb-android-tethering adds RNDIS support in userspace, and also handles CDC-NCM and CDC-ECM phones that macOS's own driver does not pick up.</p></details>
-    <details><summary>Does Android USB tethering work with a VPN on Mac?</summary>
-      <p>Yes. usb-android-tethering presents the phone as a genuine Ethernet adapter, which macOS's Network framework reports as wired Ethernet, so VPN apps run over it like over any wired network. Tunnel-based tools create utun interfaces that VPN apps often ignore.</p></details>
-    <details><summary>Is it safe and free?</summary>
-      <p>It is free and open source (MIT or Apache-2.0). It contains no kernel code, opens no network ports, and the installer verifies the release's SHA-256 checksum before installing. Uninstalling removes everything.</p></details>
+  <!-- ===================== FAQ ===================== -->
+  <section id="faq" class="wrap reveal" aria-labelledby="faq-h">
+    <div class="center">
+      <span class="eyebrow">FAQ</span>
+      <h2 id="faq-h">Frequently asked questions</h2>
+    </div>
+    <div class="faq">
+      <details class="glass"><summary>How do I use Android USB tethering on a Mac?</summary>
+        <p>Install usb-android-tethering with one command, connect the phone with a USB data cable, and turn on USB tethering in the phone's settings. The Mac connects within a few seconds and shows the phone as the network "USB Android Tethering".</p></details>
+      <details class="glass"><summary>Does HoRNDIS work on Apple Silicon Macs?</summary>
+        <p>No. HoRNDIS is a kernel extension; it no longer loads on current macOS, and on Apple Silicon any third-party kernel extension requires lowering the Mac's boot security. usb-android-tethering is a userspace alternative that needs no kernel extension.</p></details>
+      <details class="glass"><summary>Why doesn't my Mac recognize my Android phone's USB tethering?</summary>
+        <p>Most Android phones tether over RNDIS, a Microsoft protocol that macOS has never supported. usb-android-tethering adds RNDIS support in userspace, and also handles CDC-NCM and CDC-ECM phones that macOS's own driver does not pick up.</p></details>
+      <details class="glass"><summary>Does Android USB tethering work with a VPN on Mac?</summary>
+        <p>Yes. usb-android-tethering presents the phone as a genuine Ethernet adapter, which macOS's Network framework reports as wired Ethernet, so VPN apps run over it like over any wired network. Tunnel-based tools create utun interfaces that VPN apps often ignore.</p></details>
+      <details class="glass"><summary>Is it safe and free?</summary>
+        <p>It is free and open source (MIT or Apache-2.0). It contains no kernel code, opens no network ports, and the installer verifies the release's SHA-256 checksum before installing. Uninstalling removes everything.</p></details>
+    </div>
   </section>
+
+  <!-- ===================== Final CTA ===================== -->
+  <div class="wrap">
+    <div class="glass final reveal">
+      <h2>Your phone is your Ethernet port now.</h2>
+      <p>Free, open source, and one command away. If it saves you from hunting for a dongle, a star helps others find it.</p>
+      <div class="cta-row">
+        <a class="btn primary" href="https://github.com/frosty-universe/usb-android-tethering">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3 6.1 20.6l1.3-6.6L2.5 9.4l6.6-.8z"/></svg>
+          Star on GitHub
+        </a>
+        <a class="btn" href="#install-box">Install now</a>
+      </div>
+    </div>
+  </div>
 </main>
 
-<footer class="wrap">
-  <p><a href="https://github.com/frosty-universe/usb-android-tethering">Source code on GitHub</a> ·
-     <a href="https://github.com/frosty-universe/usb-android-tethering/blob/main/docs/ARCHITECTURE.md">Architecture</a> ·
-     <a href="https://github.com/frosty-universe/usb-android-tethering/blob/main/SECURITY.md">Security</a> ·
-     <a href="https://github.com/frosty-universe/usb-android-tethering/issues">Issues</a></p>
-  <p>Android is a trademark of Google LLC; macOS is a trademark of Apple Inc. This project is not affiliated with Google, Apple or any phone manufacturer.</p>
+<footer>
+  <div class="wrap">
+    <nav aria-label="Footer">
+      <a href="https://github.com/frosty-universe/usb-android-tethering">Source code</a>
+      <a href="https://github.com/frosty-universe/usb-android-tethering/blob/main/docs/ARCHITECTURE.md">Architecture</a>
+      <a href="https://github.com/frosty-universe/usb-android-tethering/blob/main/SECURITY.md">Security</a>
+      <a href="https://github.com/frosty-universe/usb-android-tethering/releases">Releases</a>
+      <a href="https://github.com/frosty-universe/usb-android-tethering/issues">Issues</a>
+    </nav>
+    <small>Android is a trademark of Google LLC; macOS is a trademark of Apple Inc. Not affiliated with Google, Apple or any phone manufacturer. MIT or Apache-2.0.</small>
+  </div>
 </footer>
 
 <script>
-  // Progressive enhancement: copy buttons (the command stays selectable without JavaScript).
+  // Copy buttons (progressive enhancement: the command stays selectable without JavaScript).
   document.querySelectorAll("button.copy").forEach(function (b) {
+    var label = b.querySelector("span");
     b.addEventListener("click", function () {
-      var text = document.getElementById(b.dataset.copy).textContent;
+      var el = document.getElementById(b.dataset.copy);
+      var text = el.textContent.replace(/^\s*\$\s*/, "").trim();
       navigator.clipboard.writeText(text).then(function () {
-        b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy"; }, 1500);
+        label.textContent = "Copied!";
+        setTimeout(function () { label.textContent = "Copy"; }, 1600);
       });
     });
   });
+  // Reveal sections as they scroll into view (skipped entirely when motion is reduced).
+  if (window.matchMedia("(prefers-reduced-motion: no-preference)").matches && "IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    document.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
+  } else {
+    document.querySelectorAll(".reveal").forEach(function (el) { el.classList.add("in"); });
+  }
 </script>
 </body>
 </html>
