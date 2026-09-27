@@ -7,6 +7,11 @@
 **Plug in your phone, turn on USB tethering, and your Mac is online.**
 No kernel extension. No security downgrade. It works with your VPN.
 
+A free, open-source **HoRNDIS alternative** for **macOS Sonoma, Sequoia and Tahoe** on **Apple Silicon (M1, M2, M3, M4)** and Intel Macs.
+It supports RNDIS, CDC-NCM and CDC-ECM Android phones: Samsung Galaxy, Google Pixel, Xiaomi, OnePlus, Motorola and more.
+
+**[🌐 Website](https://frosty-universe.github.io/usb-android-tethering/)** · **[📥 Download](https://github.com/frosty-universe/usb-android-tethering/releases/latest)** · **[📖 Guide](#step-by-step)** · **[❓ FAQ](#faq)**
+
 [![CI](https://github.com/frosty-universe/usb-android-tethering/actions/workflows/ci.yml/badge.svg)](https://github.com/frosty-universe/usb-android-tethering/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/frosty-universe/usb-android-tethering?sort=semver)](https://github.com/frosty-universe/usb-android-tethering/releases/latest)
 [![License: MIT OR Apache-2.0](https://img.shields.io/badge/license-MIT%20OR%20Apache--2.0-blue.svg)](#license)
@@ -81,7 +86,8 @@ Phone:              04e8:6863 "SAMSUNG_Android" RNDIS (bus 0 addr 2, ctrl if 0, 
 
 ---
 
-## 📖 Step-by-step guide
+<a id="step-by-step"></a>
+## 📖 Step-by-step guide: Android USB tethering on a Mac
 
 ### Step 1 — Install
 
@@ -194,12 +200,25 @@ Nothing else is touched: no kernel extensions, no changes to other network servi
 | VPN still uses Wi-Fi | Reconnect the VPN once the phone is online |
 | Anything else | `sudo usb-android-tethering -vv` shows everything, or read `/var/log/usb-android-tethering.log` |
 
+<a id="faq"></a>
 ## ❓ FAQ
 
 <details>
 <summary><b>Is it safe? It asks for my password.</b></summary>
 
 Creating a network interface and a system network service needs administrator rights, like any network driver. The tool contains no kernel code, opens no network ports, and runs its optional `adb` helper as your user, never as root. The installer refuses to run anything whose checksum doesn't match the release. The full model is in [SECURITY.md](SECURITY.md).
+</details>
+
+<details>
+<summary><b>Does HoRNDIS work on Apple Silicon (M1/M2/M3/M4) or macOS Sequoia/Tahoe?</b></summary>
+
+No. HoRNDIS is a kernel extension. It no longer loads on current macOS, and on Apple Silicon any third-party kernel extension requires lowering the Mac's boot security. usb-android-tethering is a userspace replacement: same result, no kext.
+</details>
+
+<details>
+<summary><b>Why doesn't my Mac recognise my Android phone's USB tethering?</b></summary>
+
+Most Android phones tether over RNDIS, which macOS has never supported, so nothing happens when you enable USB tethering. This tool adds that support. Phones using CDC-NCM (Pixel 6 and later) sometimes work natively; when macOS doesn't pick them up, this tool handles them too.
 </details>
 
 <details>

@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Android USB Tethering for Mac — HoRNDIS Alternative (M1–M4)</title>
+<meta name="description" content="Free HoRNDIS alternative: Android USB tethering on macOS for Apple Silicon &amp; Intel. A real Ethernet adapter that works with VPNs. No kext, one-command install.">
+<meta name="keywords" content="android usb tethering mac, horndis alternative, horndis apple silicon, usb tethering macos, rndis macos, android tethering m1, android tethering macbook, usb tethering sequoia, usb tethering sonoma, cdc-ncm mac">
+<link rel="canonical" href="https://frosty-universe.github.io/usb-android-tethering/">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#0d1321">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="usb-android-tethering">
+<meta property="og:title" content="Android USB Tethering for Mac — works on Apple Silicon, works with VPNs">
+<meta property="og:description" content="Free, open-source HoRNDIS alternative. Your Android phone becomes a real Ethernet adapter on macOS. No kernel extension, one-command install.">
+<meta property="og:url" content="https://frosty-universe.github.io/usb-android-tethering/">
+<meta property="og:image" content="https://frosty-universe.github.io/usb-android-tethering/og-image.png">
+<meta property="og:image:width" content="1280">
+<meta property="og:image:height" content="640">
+<meta property="og:image:alt" content="usb-android-tethering: Android USB tethering for macOS">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Android USB Tethering for Mac — works on Apple Silicon, works with VPNs">
+<meta name="twitter:description" content="Free, open-source HoRNDIS alternative. No kernel extension, one-command install.">
+<meta name="twitter:image" content="https://frosty-universe.github.io/usb-android-tethering/og-image.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "usb-android-tethering",
+  "alternateName": "Android USB tethering for macOS",
+  "description": "Userspace driver that makes Android USB tethering work on macOS as a real Ethernet adapter, compatible with VPNs. Supports RNDIS, CDC-NCM and CDC-ECM phones on Apple Silicon and Intel Macs, without a kernel extension.",
+  "applicationCategory": "UtilitiesApplication",
+  "applicationSubCategory": "Networking",
+  "operatingSystem": "macOS",
+  "softwareVersion": "0.1.0",
+  "license": "https://opensource.org/licenses/MIT",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "downloadUrl": "https://github.com/frosty-universe/usb-android-tethering/releases/latest",
+  "installUrl": "https://raw.githubusercontent.com/frosty-universe/usb-android-tethering/main/install.sh",
+  "codeRepository": "https://github.com/frosty-universe/usb-android-tethering",
+  "programmingLanguage": "Rust",
+  "url": "https://frosty-universe.github.io/usb-android-tethering/",
+  "image": "https://frosty-universe.github.io/usb-android-tethering/og-image.png"
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I use Android USB tethering on a Mac?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Install usb-android-tethering with one command, connect the phone with a USB data cable, and turn on USB tethering in the phone's settings. The Mac connects within a few seconds and shows the phone as the network \"USB Android Tethering\"." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does HoRNDIS work on Apple Silicon Macs?",
+      "acceptedAnswer": { "@type": "Answer", "text": "No. HoRNDIS is a kernel extension; it no longer loads on current macOS, and on Apple Silicon any third-party kernel extension requires lowering the Mac's boot security. usb-android-tethering is a userspace alternative that needs no kernel extension." }
+    },
+    {
+      "@type": "Question",
+      "name": "Why doesn't my Mac recognize my Android phone's USB tethering?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Most Android phones tether over RNDIS, a Microsoft protocol that macOS has never supported. usb-android-tethering adds RNDIS support in userspace, and also handles CDC-NCM and CDC-ECM phones that macOS's own driver does not pick up." }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Android USB tethering work with a VPN on Mac?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Yes. usb-android-tethering presents the phone as a genuine Ethernet adapter, which macOS's Network framework reports as wired Ethernet, so VPN apps run over it like over any wired network. Tunnel-based tools create utun interfaces that VPN apps often ignore." }
+    },
+    {
+      "@type": "Question",
+      "name": "Is it safe and free?",
+      "acceptedAnswer": { "@type": "Answer", "text": "It is free and open source (MIT or Apache-2.0). It contains no kernel code, opens no network ports, and the installer verifies the release's SHA-256 checksum before installing. Uninstalling removes everything." }
+    }
+  ]
+}
+</script>
+
+<style>
+  :root {
+    --bg: #ffffff; --fg: #1b2330; --muted: #4a5568; --card: #f4f6fa; --border: #d9dee7;
+    --accent: #0f7a45; --accent-fg: #ffffff; --code-bg: #0d1321; --code-fg: #d7ffe6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1321; --fg: #e8edf5; --muted: #a8b3c4; --card: #151d2e; --border: #26324a;
+      --accent: #3ddc84; --accent-fg: #06210f; --code-bg: #070b14; --code-fg: #b8f7d2;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+         font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  a { color: var(--accent); }
+  a:focus-visible, button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+  header.hero { padding: 64px 0 40px; }
+  h1 { font-size: clamp(2rem, 5vw, 3rem); line-height: 1.15; margin: 0 0 12px; }
+  h2 { font-size: 1.6rem; margin: 48px 0 12px; }
+  h3 { font-size: 1.15rem; margin: 0 0 6px; }
+  .lead { font-size: 1.2rem; color: var(--muted); margin: 0 0 24px; }
+  .cmd { display: flex; align-items: stretch; gap: 8px; background: var(--code-bg); border-radius: 12px;
+         padding: 12px; overflow-x: auto; }
+  .cmd code { color: var(--code-fg); font: 15px/1.5 ui-monospace, SFMono-Regular, Menlo, monospace;
+              white-space: nowrap; align-self: center; flex: 1; }
+  button.copy { flex: none; min-width: 72px; min-height: 44px; border: 0; border-radius: 8px; cursor: pointer;
+                background: var(--accent); color: var(--accent-fg); font-weight: 600; font-size: 15px; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+  .btn { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 10px;
+         border: 1px solid var(--border); text-decoration: none; font-weight: 600; color: var(--fg); }
+  .btn.primary { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; }
+  .card p { margin: 0; color: var(--muted); }
+  table { width: 100%; border-collapse: collapse; font-size: 15px; }
+  th, td { border-bottom: 1px solid var(--border); padding: 10px 8px; text-align: left; vertical-align: top; }
+  th { font-weight: 600; }
+  .scroll { overflow-x: auto; }
+  ol.steps { padding-left: 1.2em; } ol.steps li { margin: 0 0 10px; }
+  details { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; margin: 10px 0; }
+  summary { cursor: pointer; font-weight: 600; min-height: 28px; }
+  footer { margin: 64px 0 32px; color: var(--muted); font-size: 14px; }
+  @media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+</head>
+<body>
+<header class="hero wrap">
+  <h1>Android USB tethering for Mac — on Apple Silicon, with your VPN</h1>
+  <p class="lead">
+    <strong>usb-android-tethering</strong> makes your Android phone's USB tethering work on macOS
+    (Sonoma, Sequoia, Tahoe; M1–M4 and Intel). It's a free, open-source <strong>HoRNDIS alternative</strong>:
+    the phone appears as a <strong>real Ethernet adapter</strong>, so VPN apps work over it. No kernel extension,
+    no security changes.
+  </p>
+  <div class="cmd" role="group" aria-label="Install command">
+    <code id="install-cmd">curl -fsSL https://raw.githubusercontent.com/frosty-universe/usb-android-tethering/main/install.sh | sh</code>
+    <button class="copy" type="button" data-copy="install-cmd" aria-label="Copy install command">Copy</button>
+  </div>
+  <div class="cta">
+    <a class="btn primary" href="https://github.com/frosty-universe/usb-android-tethering">⭐ Star on GitHub</a>
+    <a class="btn" href="https://github.com/frosty-universe/usb-android-tethering/releases/latest">Download release</a>
+    <a class="btn" href="#how-to">Step-by-step guide</a>
+  </div>
+</header>
+
+<main class="wrap">
+  <section aria-labelledby="why">
+    <h2 id="why">Why Android USB tethering doesn't work on a Mac</h2>
+    <p>Most Android phones tether over <strong>RNDIS</strong>, a Microsoft protocol macOS has never supported.
+      The old fix, the <strong>HoRNDIS</strong> kernel extension, no longer loads on current macOS, and on Apple Silicon
+      any kext requires lowering the Mac's boot security. Tools that use a tunnel (<code>utun</code>) interface instead
+      are often ignored by VPN apps. usb-android-tethering solves both problems.</p>
+  </section>
+
+  <section aria-labelledby="features">
+    <h2 id="features">Features</h2>
+    <div class="grid">
+      <div class="card"><h3>🔌 A real Ethernet adapter</h3><p>macOS's Network framework reports it as wired Ethernet, and it's listed in System Settings → Network as "USB Android Tethering".</p></div>
+      <div class="card"><h3>🛡️ Works with VPNs</h3><p>VPN apps run over it like any wired network. Only IPv4 is bridged, so IPv6 can't leak around the VPN.</p></div>
+      <div class="card"><h3>🤖 Every Android phone</h3><p>RNDIS (Samsung, Xiaomi, OnePlus, Motorola…) plus CDC-NCM/ECM (Pixel 6+) when macOS doesn't pick the phone up itself.</p></div>
+      <div class="card"><h3>🍏 Apple Silicon &amp; Intel</h3><p>One universal binary for M1, M2, M3, M4 and Intel Macs. No kernel extension, no SIP or boot-security changes.</p></div>
+      <div class="card"><h3>🔁 Plug and play</h3><p>Starts at boot, connects when you plug in, reconnects after sleep or unplugging, and recovers by itself from crashes.</p></div>
+      <div class="card"><h3>🪶 Lightweight &amp; open source</h3><p>Written in Rust, about 7 MB of memory, 0 % CPU when idle. MIT or Apache-2.0 licensed.</p></div>
+    </div>
+  </section>
+
+  <section aria-labelledby="how-to">
+    <h2 id="how-to">How to use Android USB tethering on a Mac</h2>
+    <ol class="steps">
+      <li><strong>Install</strong> by pasting the command above into Terminal. It downloads the universal binary, verifies its checksum, and asks for your password once.</li>
+      <li><strong>Connect the phone</strong> with a USB data cable. Charge-only cables don't carry data.</li>
+      <li><strong>Turn on USB tethering</strong> on the phone. Samsung: Settings → Connections → Mobile Hotspot and Tethering → USB tethering. Pixel: Settings → Network &amp; internet → Hotspot &amp; tethering → USB tethering. Other phones: search Settings for "USB tethering".</li>
+      <li><strong>You're online.</strong> Check with <code>usb-android-tethering status</code>. Unplug and your Mac falls back to Wi-Fi.</li>
+    </ol>
+  </section>
+
+  <section aria-labelledby="compare">
+    <h2 id="compare">HoRNDIS vs. tunnel-based tools vs. usb-android-tethering</h2>
+    <div class="scroll">
+      <table>
+        <thead><tr><th scope="col"></th><th scope="col">HoRNDIS (kext)</th><th scope="col">Tunnel-based (<code>utun</code>)</th><th scope="col">usb-android-tethering</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Current macOS &amp; Apple Silicon</th><td>No</td><td>Yes</td><td><strong>Yes</strong></td></tr>
+          <tr><th scope="row">No boot-security downgrade</th><td>No</td><td>Yes</td><td><strong>Yes</strong></td></tr>
+          <tr><th scope="row">Seen as wired Ethernet</th><td>Yes</td><td>No</td><td><strong>Yes</strong></td></tr>
+          <tr><th scope="row">VPN apps can run over it</th><td>Yes</td><td>Often ignored</td><td><strong>Yes</strong></td></tr>
+          <tr><th scope="row">RNDIS and CDC-NCM/ECM phones</th><td>RNDIS only</td><td>Varies</td><td><strong>Yes</strong></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section aria-labelledby="faq">
+    <h2 id="faq">Frequently asked questions</h2>
+    <details><summary>How do I use Android USB tethering on a Mac?</summary>
+      <p>Install usb-android-tethering with one command, connect the phone with a USB data cable, and turn on USB tethering in the phone's settings. The Mac connects within a few seconds and shows the phone as the network "USB Android Tethering".</p></details>
+    <details><summary>Does HoRNDIS work on Apple Silicon Macs?</summary>
+      <p>No. HoRNDIS is a kernel extension; it no longer loads on current macOS, and on Apple Silicon any third-party kernel extension requires lowering the Mac's boot security. usb-android-tethering is a userspace alternative that needs no kernel extension.</p></details>
+    <details><summary>Why doesn't my Mac recognize my Android phone's USB tethering?</summary>
+      <p>Most Android phones tether over RNDIS, a Microsoft protocol that macOS has never supported. usb-android-tethering adds RNDIS support in userspace, and also handles CDC-NCM and CDC-ECM phones that macOS's own driver does not pick up.</p></details>
+    <details><summary>Does Android USB tethering work with a VPN on Mac?</summary>
+      <p>Yes. usb-android-tethering presents the phone as a genuine Ethernet adapter, which macOS's Network framework reports as wired Ethernet, so VPN apps run over it like over any wired network. Tunnel-based tools create utun interfaces that VPN apps often ignore.</p></details>
+    <details><summary>Is it safe and free?</summary>
+      <p>It is free and open source (MIT or Apache-2.0). It contains no kernel code, opens no network ports, and the installer verifies the release's SHA-256 checksum before installing. Uninstalling removes everything.</p></details>
+  </section>
+</main>
+
+<footer class="wrap">
+  <p><a href="https://github.com/frosty-universe/usb-android-tethering">Source code on GitHub</a> ·
+     <a href="https://github.com/frosty-universe/usb-android-tethering/blob/main/docs/ARCHITECTURE.md">Architecture</a> ·
+     <a href="https://github.com/frosty-universe/usb-android-tethering/blob/main/SECURITY.md">Security</a> ·
+     <a href="https://github.com/frosty-universe/usb-android-tethering/issues">Issues</a></p>
+  <p>Android is a trademark of Google LLC; macOS is a trademark of Apple Inc. This project is not affiliated with Google, Apple or any phone manufacturer.</p>
+</footer>
+
+<script>
+  // Progressive enhancement: copy buttons (the command stays selectable without JavaScript).
+  document.querySelectorAll("button.copy").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var text = document.getElementById(b.dataset.copy).textContent;
+      navigator.clipboard.writeText(text).then(function () {
+        b.textContent = "Copied"; setTimeout(function () { b.textContent = "Copy"; }, 1500);
+      });
+    });
+  });
+</script>
+</body>
+</html>

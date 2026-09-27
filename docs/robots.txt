@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://frosty-universe.github.io/usb-android-tethering/sitemap.xml
